@@ -51,6 +51,9 @@ export default function RootLayout() {
           <Stack.Screen name="movement-form" options={{ title: 'Movimiento' }} />
           <Stack.Screen name="budgets" options={{ title: 'Presupuestos' }} />
           <Stack.Screen name="budget-form" options={{ title: 'Presupuesto' }} />
+          <Stack.Screen name="goal-form" options={{ title: 'Meta de ahorro' }} />
+          <Stack.Screen name="recurring" options={{ title: 'Recurrentes' }} />
+          <Stack.Screen name="recurring-form" options={{ title: 'Recurrente' }} />
         </Stack>
       </SQLiteProvider>
     </ThemeProvider>

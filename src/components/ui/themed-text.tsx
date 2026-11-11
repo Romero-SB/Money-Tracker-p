@@ -4,7 +4,7 @@ import { Colors, Typography } from '@/constants/theme';
 
 type ThemedTextProps = {
   variant?: 'title' | 'subtitle' | 'body' | 'small' | 'tiny';
-  color?: 'default' | 'muted' | 'faint' | 'primary' | 'income' | 'expense' | 'transfer';
+  color?: 'default' | 'muted' | 'faint' | 'primary' | 'income' | 'expense' | 'transfer' | 'savings';
 } & Omit<TextProps, 'style'> & { style?: StyleProp<TextStyle> };
 
 const variantStyles = StyleSheet.create({
@@ -23,6 +23,7 @@ const colorStyles = StyleSheet.create({
   income: { color: Colors.income },
   expense: { color: Colors.expense },
   transfer: { color: Colors.transfer },
+  savings: { color: Colors.savings },
 });
 
 export function ThemedText({

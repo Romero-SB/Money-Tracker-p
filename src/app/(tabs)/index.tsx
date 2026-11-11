@@ -1,10 +1,11 @@
 import { useRouter } from 'expo-router';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { MovementRow } from '@/components/movement/movement-row';
 import { QuickAddMenu } from '@/components/movement/quick-add-menu';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { IconBadge } from '@/components/ui/icon-badge';
 import { OptionChips } from '@/components/ui/option-chips';
@@ -14,6 +15,9 @@ import { ThemedText } from '@/components/ui/themed-text';
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
 import { useAccounts } from '@/hooks/use-accounts';
 import { useDashboard } from '@/hooks/use-dashboard';
+import { useSQLiteContext } from 'expo-sqlite';
+import { applyRecurring, skipRecurring } from '@/services/recurring';
+import { FREQUENCY_LABELS } from '@/db/repositories/recurring';
 import type { DashboardPeriod } from '@/utils/dates';
 import { formatMoney } from '@/utils/format';
 
@@ -29,13 +33,26 @@ function capitalizeFirst(text: string): string {
 
 export default function HomeScreen() {
   const router = useRouter();
+  const db = useSQLiteContext();
   const { accounts } = useAccounts();
-  const { period, setPeriod, summary, latest, loading, error } = useDashboard();
+  const { period, setPeriod, summary, latest, dueRecurring, loading, error, refresh } = useDashboard();
 
   const activeAccounts = (accounts ?? []).filter((account) => account.is_active);
   const totalBalance = activeAccounts.reduce((sum, account) => sum + account.balance, 0);
   const todayLabel = capitalizeFirst(format(new Date(), "EEEE, d 'de' MMMM yyyy", { locale: es }));
   const balance = summary ? summary.income - summary.expense : 0;
+
+  const handleApplyRecurring = (id: number) => {
+    applyRecurring(db, id)
+      .then(() => refresh())
+      .catch(() => Alert.alert('Error', 'No se pudo registrar el movimiento.'));
+  };
+
+  const handleSkipRecurring = (id: number) => {
+    skipRecurring(db, id)
+      .then(() => refresh())
+      .catch(() => Alert.alert('Error', 'No se pudo omitir la recurrente.'));
+  };
 
   if (loading) {
     return (
@@ -118,6 +135,53 @@ export default function HomeScreen() {
             </View>
           ) : null}
         </Card>
+
+        {dueRecurring.length > 0 ? (
+          <Card style={styles.card}>
+            <View style={styles.sectionHeader}>
+              <ThemedText variant="subtitle">Recurrentes pendientes</ThemedText>
+              <Pressable onPress={() => router.push('/recurring')} hitSlop={8}>
+                <ThemedText variant="small" color="primary">
+                  Ver todas
+                </ThemedText>
+              </Pressable>
+            </View>
+            <ThemedText variant="tiny" color="faint">
+              Confirma cada una para registrarla como movimiento.
+            </ThemedText>
+            {dueRecurring.map((item) => (
+              <View key={item.id} style={styles.dueRow}>
+                <IconBadge
+                  icon={item.type === 'income' ? 'add-circle' : 'remove-circle'}
+                  color={item.type === 'income' ? Colors.income : Colors.expense}
+                  size={36}
+                />
+                <View style={styles.dueColumn}>
+                  <ThemedText variant="small" style={styles.dueName} numberOfLines={1}>
+                    {item.description || 'Sin descripción'}
+                  </ThemedText>
+                  <ThemedText variant="tiny" color="faint" numberOfLines={1}>
+                    {format(parseISO(item.next_run), "d MMM yyyy", { locale: es })} ·{' '}
+                    {FREQUENCY_LABELS[item.frequency]} · {formatMoney(item.amount)}
+                  </ThemedText>
+                </View>
+                <View style={styles.dueActions}>
+                  <Button
+                    label="Registrar"
+                    onPress={() => handleApplyRecurring(item.id)}
+                    style={styles.dueButton}
+                  />
+                  <Button
+                    label="Omitir"
+                    variant="secondary"
+                    onPress={() => handleSkipRecurring(item.id)}
+                    style={styles.dueButton}
+                  />
+                </View>
+              </View>
+            ))}
+          </Card>
+        ) : null}
 
         <Card style={styles.card}>
           <View style={styles.sectionHeader}>
@@ -255,5 +319,29 @@ const styles = StyleSheet.create({
   },
   emptyMovements: {
     alignItems: 'center',
+  },
+  dueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.xs,
+    borderRadius: Radius.md,
+  },
+  dueColumn: {
+    flex: 1,
+    gap: Spacing.xs,
+  },
+  dueName: {
+    fontWeight: '500',
+  },
+  dueActions: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  dueButton: {
+    minHeight: 36,
+    paddingVertical: Spacing.xs + 2,
+    paddingHorizontal: Spacing.md,
   },
 });

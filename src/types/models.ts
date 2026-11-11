@@ -100,6 +100,16 @@ export type SavingsGoal = {
   updated_at: string;
 };
 
+export type GoalWithProgress = SavingsGoal & {
+  saved: number;
+  remaining: number;
+  progress: number;
+};
+
+export type ContributionWithDate = GoalContribution & {
+  occurred_at: string | null;
+};
+
 export type GoalContribution = {
   id: number;
   goal_id: number;
@@ -121,6 +131,11 @@ export type RecurringTransaction = {
   is_active: 0 | 1;
   created_at: string;
   updated_at: string;
+};
+
+export type RecurringWithDetails = RecurringTransaction & {
+  account_name: string;
+  category_name: string | null;
 };
 
 export type AppSettings = Record<string, string>;

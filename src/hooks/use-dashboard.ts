@@ -4,7 +4,8 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { format } from 'date-fns';
 
 import { getPeriodSummary, listMovements } from '@/services/movements';
-import type { MovementWithDetails } from '@/types/models';
+import { getDueRecurring } from '@/services/recurring';
+import type { MovementWithDetails, RecurringWithDetails } from '@/types/models';
 import type { DashboardPeriod } from '@/utils/dates';
 import { periodFromDate } from '@/utils/dates';
 
@@ -15,6 +16,7 @@ export function useDashboard() {
   const [period, setPeriodState] = useState<DashboardPeriod>('month');
   const [summary, setSummary] = useState<{ income: number; expense: number } | null>(null);
   const [latest, setLatest] = useState<MovementWithDetails[]>([]);
+  const [dueRecurring, setDueRecurring] = useState<RecurringWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,12 +25,14 @@ export function useDashboard() {
       try {
         const from = format(periodFromDate(currentPeriod), 'yyyy-MM-dd');
         const to = format(new Date(), 'yyyy-MM-dd');
-        const [summaryResult, latestResult] = await Promise.all([
+        const [summaryResult, latestResult, dueRecurringResult] = await Promise.all([
           getPeriodSummary(db, from, to),
           listMovements(db, {}, LATEST_LIMIT, 0),
+          getDueRecurring(db),
         ]);
         setSummary(summaryResult);
         setLatest(latestResult.items);
+        setDueRecurring(dueRecurringResult);
         setError(null);
       } catch {
         setError('No se pudo cargar el resumen');
@@ -49,5 +53,9 @@ export function useDashboard() {
     setPeriodState(next);
   }, []);
 
-  return { period, setPeriod, summary, latest, loading, error };
+  const refresh = useCallback(() => {
+    load(period);
+  }, [load, period]);
+
+  return { period, setPeriod, summary, latest, dueRecurring, loading, error, refresh };
 }

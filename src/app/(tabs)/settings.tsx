@@ -38,6 +38,13 @@ const MENU: MenuEntry[] = [
     description: 'Límites de gasto y alertas',
     route: '/budgets',
   },
+  {
+    icon: 'repeat',
+    color: '#8B5CF6',
+    label: 'Recurrentes',
+    description: 'Movimientos que se repiten',
+    route: '/recurring',
+  },
 ];
 
 const COMING_SOON: MenuEntry[] = [
