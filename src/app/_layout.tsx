@@ -4,7 +4,9 @@ import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'react-native';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { SQLiteProvider } from 'expo-sqlite';
 
+import { DATABASE_NAME, initDatabase } from '@/db';
 import { Colors } from '@/constants/theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -39,9 +41,11 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? AppDarkTheme : AppTheme}>
       <StatusBar style="dark" />
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
+      <SQLiteProvider databaseName={DATABASE_NAME} onInit={initDatabase}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Stack>
+      </SQLiteProvider>
     </ThemeProvider>
   );
 }
