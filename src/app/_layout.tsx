@@ -49,6 +49,8 @@ export default function RootLayout() {
           <Stack.Screen name="categories" options={{ title: 'Categorías' }} />
           <Stack.Screen name="category-form" options={{ title: 'Categoría' }} />
           <Stack.Screen name="movement-form" options={{ title: 'Movimiento' }} />
+          <Stack.Screen name="budgets" options={{ title: 'Presupuestos' }} />
+          <Stack.Screen name="budget-form" options={{ title: 'Presupuesto' }} />
         </Stack>
       </SQLiteProvider>
     </ThemeProvider>

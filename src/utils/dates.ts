@@ -1,7 +1,9 @@
-import { format, isToday, isYesterday, startOfDay, startOfMonth, startOfWeek } from 'date-fns';
+import { format, isToday, isYesterday, startOfDay, startOfMonth, startOfWeek, startOfYear, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export type DashboardPeriod = 'today' | 'week' | 'month';
+
+export type StatsPeriod = 'month' | 'quarter' | 'year';
 
 export function periodFromDate(period: DashboardPeriod): Date {
   const now = new Date();
@@ -23,6 +25,29 @@ export function periodLabel(period: DashboardPeriod): string {
       return 'Semana';
     case 'month':
       return 'Mes';
+  }
+}
+
+export function statsPeriodFromDate(period: StatsPeriod): Date {
+  const now = new Date();
+  switch (period) {
+    case 'month':
+      return startOfMonth(now);
+    case 'quarter':
+      return startOfMonth(subMonths(now, 2));
+    case 'year':
+      return startOfYear(now);
+  }
+}
+
+export function statsPeriodLabel(period: StatsPeriod): string {
+  switch (period) {
+    case 'month':
+      return 'Este mes';
+    case 'quarter':
+      return 'Últimos 3 meses';
+    case 'year':
+      return 'Este año';
   }
 }
 

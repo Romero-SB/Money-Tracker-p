@@ -80,6 +80,15 @@ export type Budget = {
   updated_at: string;
 };
 
+export type BudgetWithProgress = Budget & {
+  category_name: string;
+  category_icon: string;
+  category_color: string;
+  spent: number;
+  remaining: number;
+  progress: number;
+};
+
 export type SavingsGoal = {
   id: number;
   name: string;

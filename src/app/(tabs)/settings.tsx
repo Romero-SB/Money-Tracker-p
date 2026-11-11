@@ -31,6 +31,13 @@ const MENU: MenuEntry[] = [
     description: 'Organiza tus ingresos y gastos',
     route: '/categories',
   },
+  {
+    icon: 'pie-chart',
+    color: '#F59E0B',
+    label: 'Presupuestos',
+    description: 'Límites de gasto y alertas',
+    route: '/budgets',
+  },
 ];
 
 const COMING_SOON: MenuEntry[] = [

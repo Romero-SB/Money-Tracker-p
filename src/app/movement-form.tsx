@@ -16,6 +16,7 @@ import { ThemedText } from '@/components/ui/themed-text';
 import { Colors, Spacing } from '@/constants/theme';
 import { useAccounts } from '@/hooks/use-accounts';
 import { useCategories } from '@/hooks/use-categories';
+import { checkBudgetAlerts } from '@/services/budget-alerts';
 import type { PendingAttachment } from '@/services/attachments';
 import {
   createMovement,
@@ -189,6 +190,9 @@ export default function MovementFormScreen() {
       }
       if (pendingAttachments.length > 0 || removedAttachments.length > 0) {
         await saveMovementAttachments(db, movementId, pendingAttachments, removedAttachments);
+      }
+      if (movementType === 'expense' && categoryId !== null) {
+        checkBudgetAlerts(db, categoryId).catch(() => {});
       }
       router.back();
     } catch (error) {

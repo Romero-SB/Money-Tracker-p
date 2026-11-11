@@ -1,3 +1,5 @@
+import { format, startOfMonth, subMonths } from 'date-fns';
+import { es } from 'date-fns/locale';
 import type { SQLiteDatabase } from 'expo-sqlite';
 
 import type {
@@ -38,6 +40,22 @@ export type AttachmentInput = {
 };
 
 export type PeriodSummary = {
+  income: number;
+  expense: number;
+};
+
+export type CategoryExpense = {
+  category_id: number;
+  category_name: string;
+  category_icon: string;
+  category_color: string;
+  total: number;
+  count: number;
+};
+
+export type MonthlyPoint = {
+  key: string;
+  label: string;
   income: number;
   expense: number;
 };
@@ -238,6 +256,58 @@ export function movementsRepository(db: SQLiteDatabase) {
     };
   }
 
+  async function expensesByCategory(from: string, to: string): Promise<CategoryExpense[]> {
+    return db.getAllAsync<CategoryExpense>(
+      `SELECT
+         m.category_id AS category_id,
+         c.name AS category_name,
+         c.icon AS category_icon,
+         c.color AS category_color,
+         COALESCE(SUM(m.amount), 0) AS total,
+         COUNT(m.id) AS count
+       FROM movements m
+       JOIN categories c ON c.id = m.category_id
+       WHERE m.type = 'expense' AND m.is_deleted = 0 AND m.occurred_at >= ? AND m.occurred_at <= ?
+       GROUP BY m.category_id
+       ORDER BY total DESC`,
+      [from, `${to}T23:59:59.999Z`]
+    );
+  }
+
+  async function getMonthlyTotals(months: number): Promise<MonthlyPoint[]> {
+    const now = new Date();
+    const firstMonth = startOfMonth(subMonths(now, months - 1));
+    const rows = await db.getAllAsync<{ occurred_at: string; type: MovementType; amount: number }>(
+      `SELECT occurred_at, type, amount FROM movements
+       WHERE is_deleted = 0 AND occurred_at >= ?`,
+      [format(firstMonth, "yyyy-MM-dd'T'00:00:00.000")]
+    );
+
+    const byMonth = new Map<string, { income: number; expense: number }>();
+    for (const row of rows) {
+      const key = format(new Date(row.occurred_at), 'yyyy-MM');
+      const entry = byMonth.get(key) ?? { income: 0, expense: 0 };
+      if (row.type === 'income') {
+        entry.income += row.amount;
+      } else if (row.type === 'expense') {
+        entry.expense += row.amount;
+      }
+      byMonth.set(key, entry);
+    }
+
+    const points: MonthlyPoint[] = [];
+    for (let index = months - 1; index >= 0; index--) {
+      const date = subMonths(now, index);
+      const entry = byMonth.get(format(date, 'yyyy-MM')) ?? { income: 0, expense: 0 };
+      points.push({
+        key: format(date, 'yyyy-MM'),
+        label: format(date, 'MMM', { locale: es }),
+        ...entry,
+      });
+    }
+    return points;
+  }
+
   return {
     create,
     update,
@@ -248,6 +318,8 @@ export function movementsRepository(db: SQLiteDatabase) {
     getWithDetails,
     list,
     getSummary,
+    expensesByCategory,
+    getMonthlyTotals,
     getAttachments,
     addAttachment,
     removeAttachment,
