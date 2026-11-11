@@ -1,13 +1,11 @@
-import { StyleSheet, Text, type StyleProp, type TextStyle } from 'react-native';
+import { StyleSheet, Text, type StyleProp, type TextProps, type TextStyle } from 'react-native';
 
 import { Colors, Typography } from '@/constants/theme';
 
 type ThemedTextProps = {
-  children: React.ReactNode;
   variant?: 'title' | 'subtitle' | 'body' | 'small' | 'tiny';
   color?: 'default' | 'muted' | 'faint' | 'primary' | 'income' | 'expense' | 'transfer';
-  style?: StyleProp<TextStyle>;
-};
+} & Omit<TextProps, 'style'> & { style?: StyleProp<TextStyle> };
 
 const variantStyles = StyleSheet.create({
   title: { fontSize: Typography.title, fontWeight: '700' as const, color: Colors.text },
@@ -27,6 +25,16 @@ const colorStyles = StyleSheet.create({
   transfer: { color: Colors.transfer },
 });
 
-export function ThemedText({ children, variant = 'body', color = 'default', style }: ThemedTextProps) {
-  return <Text style={[variantStyles[variant], colorStyles[color], style]}>{children}</Text>;
+export function ThemedText({
+  children,
+  variant = 'body',
+  color = 'default',
+  style,
+  ...rest
+}: ThemedTextProps) {
+  return (
+    <Text style={[variantStyles[variant], colorStyles[color], style]} {...rest}>
+      {children}
+    </Text>
+  );
 }

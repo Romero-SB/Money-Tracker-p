@@ -44,6 +44,10 @@ export default function RootLayout() {
       <SQLiteProvider databaseName={DATABASE_NAME} onInit={initDatabase}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="accounts" options={{ title: 'Cuentas' }} />
+          <Stack.Screen name="account-form" options={{ title: 'Cuenta' }} />
+          <Stack.Screen name="categories" options={{ title: 'Categorías' }} />
+          <Stack.Screen name="category-form" options={{ title: 'Categoría' }} />
         </Stack>
       </SQLiteProvider>
     </ThemeProvider>
