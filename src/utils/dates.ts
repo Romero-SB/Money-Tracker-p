@@ -1,5 +1,30 @@
-import { format, isToday, isYesterday } from 'date-fns';
+import { format, isToday, isYesterday, startOfDay, startOfMonth, startOfWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
+
+export type DashboardPeriod = 'today' | 'week' | 'month';
+
+export function periodFromDate(period: DashboardPeriod): Date {
+  const now = new Date();
+  switch (period) {
+    case 'today':
+      return startOfDay(now);
+    case 'week':
+      return startOfWeek(now, { locale: es });
+    case 'month':
+      return startOfMonth(now);
+  }
+}
+
+export function periodLabel(period: DashboardPeriod): string {
+  switch (period) {
+    case 'today':
+      return 'Hoy';
+    case 'week':
+      return 'Semana';
+    case 'month':
+      return 'Mes';
+  }
+}
 
 export function nowISO(): string {
   return new Date().toISOString();

@@ -4,6 +4,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { Alert, StyleSheet, View } from 'react-native';
 
 import { SelectorModal } from '@/components/pickers/selector-modal';
+import { AttachmentSection } from '@/components/movement/attachment-section';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { DateTimeField } from '@/components/ui/date-time-field';
@@ -15,8 +16,16 @@ import { ThemedText } from '@/components/ui/themed-text';
 import { Colors, Spacing } from '@/constants/theme';
 import { useAccounts } from '@/hooks/use-accounts';
 import { useCategories } from '@/hooks/use-categories';
-import { createMovement, deleteMovement, getMovementWithDetails, updateMovement } from '@/services/movements';
-import type { MovementType } from '@/types/models';
+import type { PendingAttachment } from '@/services/attachments';
+import {
+  createMovement,
+  deleteMovement,
+  getMovementAttachments,
+  getMovementWithDetails,
+  saveMovementAttachments,
+  updateMovement,
+} from '@/services/movements';
+import type { MovementAttachment, MovementType } from '@/types/models';
 import { parseAmount } from '@/utils/format';
 
 const TYPE_OPTIONS: { value: MovementType; label: string; icon: 'add-circle' | 'remove-circle' | 'swap-horizontal' }[] = [
@@ -46,6 +55,9 @@ export default function MovementFormScreen() {
   const [date, setDate] = useState(new Date());
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(!isEditing);
+  const [existingAttachments, setExistingAttachments] = useState<MovementAttachment[]>([]);
+  const [pendingAttachments, setPendingAttachments] = useState<PendingAttachment[]>([]);
+  const [removedAttachments, setRemovedAttachments] = useState<MovementAttachment[]>([]);
 
   const [accountPickerVisible, setAccountPickerVisible] = useState(false);
   const [destinationPickerVisible, setDestinationPickerVisible] = useState(false);
@@ -56,20 +68,23 @@ export default function MovementFormScreen() {
       return;
     }
     let cancelled = false;
-    getMovementWithDetails(db, editingId).then((result) => {
-      if (cancelled || !result) {
-        return;
+    Promise.all([getMovementWithDetails(db, editingId), getMovementAttachments(db, editingId)]).then(
+      ([result, attachments]) => {
+        if (cancelled || !result) {
+          return;
+        }
+        setMovementType(result.type);
+        setAmount(String(result.amount));
+        setAccountId(result.account_id);
+        setDestinationAccountId(result.destination_account_id);
+        setCategoryId(result.category_id);
+        setDescription(result.description);
+        setNotes(result.notes ?? '');
+        setDate(new Date(result.occurred_at));
+        setExistingAttachments(attachments);
+        setLoaded(true);
       }
-      setMovementType(result.type);
-      setAmount(String(result.amount));
-      setAccountId(result.account_id);
-      setDestinationAccountId(result.destination_account_id);
-      setCategoryId(result.category_id);
-      setDescription(result.description);
-      setNotes(result.notes ?? '');
-      setDate(new Date(result.occurred_at));
-      setLoaded(true);
-    });
+    );
     return () => {
       cancelled = true;
     };
@@ -166,10 +181,14 @@ export default function MovementFormScreen() {
 
     try {
       setSaving(true);
-      if (editingId !== null) {
-        await updateMovement(db, editingId, input);
+      let movementId = editingId;
+      if (movementId !== null) {
+        await updateMovement(db, movementId, input);
       } else {
-        await createMovement(db, input);
+        movementId = await createMovement(db, input);
+      }
+      if (pendingAttachments.length > 0 || removedAttachments.length > 0) {
+        await saveMovementAttachments(db, movementId, pendingAttachments, removedAttachments);
       }
       router.back();
     } catch (error) {
@@ -177,6 +196,19 @@ export default function MovementFormScreen() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleAddAttachments = (attachments: PendingAttachment[]) => {
+    setPendingAttachments((previous) => [...previous, ...attachments]);
+  };
+
+  const handleRemoveExistingAttachment = (attachment: MovementAttachment) => {
+    setExistingAttachments((previous) => previous.filter((item) => item.id !== attachment.id));
+    setRemovedAttachments((previous) => [...previous, attachment]);
+  };
+
+  const handleRemovePendingAttachment = (index: number) => {
+    setPendingAttachments((previous) => previous.filter((_, itemIndex) => itemIndex !== index));
   };
 
   const handleDelete = () => {
@@ -280,6 +312,16 @@ export default function MovementFormScreen() {
             multiline
             numberOfLines={3}
             style={styles.notesInput}
+          />
+        </Card>
+
+        <Card style={styles.card}>
+          <AttachmentSection
+            existing={existingAttachments}
+            pending={pendingAttachments}
+            onAdd={handleAddAttachments}
+            onRemoveExisting={handleRemoveExistingAttachment}
+            onRemovePending={handleRemovePendingAttachment}
           />
         </Card>
 

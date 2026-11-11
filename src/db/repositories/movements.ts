@@ -37,6 +37,11 @@ export type AttachmentInput = {
   size: number;
 };
 
+export type PeriodSummary = {
+  income: number;
+  expense: number;
+};
+
 const SELECT_MOVEMENTS = `
 SELECT
   m.*,
@@ -218,6 +223,21 @@ export function movementsRepository(db: SQLiteDatabase) {
     return attachment;
   }
 
+  async function getSummary(from: string, to: string): Promise<PeriodSummary> {
+    const result = await db.getFirstAsync<{ income: number | null; expense: number | null }>(
+      `SELECT
+         COALESCE(SUM(CASE WHEN type = 'income' THEN amount END), 0) AS income,
+         COALESCE(SUM(CASE WHEN type = 'expense' THEN amount END), 0) AS expense
+       FROM movements
+       WHERE is_deleted = 0 AND occurred_at >= ? AND occurred_at <= ?`,
+      [from, `${to}T23:59:59.999Z`]
+    );
+    return {
+      income: result?.income ?? 0,
+      expense: result?.expense ?? 0,
+    };
+  }
+
   return {
     create,
     update,
@@ -227,6 +247,7 @@ export function movementsRepository(db: SQLiteDatabase) {
     getById,
     getWithDetails,
     list,
+    getSummary,
     getAttachments,
     addAttachment,
     removeAttachment,
