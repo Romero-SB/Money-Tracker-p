@@ -67,7 +67,7 @@ export default function StatsScreen() {
   }
 
   return (
-    <Screen scroll>
+    <Screen scroll contentContainerStyle={styles.content}>
       <Card style={styles.card}>
         <OptionChips options={PERIOD_OPTIONS} value={period} onChange={setPeriod} />
         {error ? (
@@ -184,6 +184,9 @@ export default function StatsScreen() {
 }
 
 const styles = StyleSheet.create({
+  content: {
+    gap: Spacing.xl,
+  },
   center: {
     flex: 1,
     alignItems: 'center',

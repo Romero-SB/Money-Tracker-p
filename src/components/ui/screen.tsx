@@ -14,7 +14,7 @@ type ScreenProps = {
 export function Screen({ children, scroll = false, style, contentContainerStyle }: ScreenProps) {
   if (scroll) {
     return (
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <SafeAreaView style={styles.safeArea} edges={[]}>
         <ScrollView
           style={styles.flex}
           contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
@@ -27,7 +27,7 @@ export function Screen({ children, scroll = false, style, contentContainerStyle 
   }
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={styles.safeArea} edges={[]}>
       <View style={[styles.content, style]}>{children}</View>
     </SafeAreaView>
   );

@@ -68,17 +68,18 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: Colors.inputBackground,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
     borderRadius: Radius.md,
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
     fontSize: Typography.body,
     color: Colors.text,
-    minHeight: 48,
+    minHeight: 52,
   },
   inputFocused: {
     borderColor: Colors.primary,
+    backgroundColor: Colors.card,
   },
   inputError: {
     borderColor: Colors.expense,

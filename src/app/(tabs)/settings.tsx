@@ -116,7 +116,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <Screen scroll>
+    <Screen scroll contentContainerStyle={styles.content}>
       <View style={styles.section}>
         <ThemedText variant="tiny" color="faint" style={styles.sectionTitle}>
           PREFERENCIAS
@@ -150,7 +150,7 @@ export default function SettingsScreen() {
         </Card>
       </View>
 
-      <ThemedText variant="tiny" color="faint" style={styles.version}>
+      <ThemedText variant="tiny" color="faint" style={styles.footer}>
         Money Tracker v1.0
       </ThemedText>
 
@@ -170,6 +170,9 @@ const styles = StyleSheet.create({
   card: {
     paddingVertical: Spacing.xs,
   },
+  content: {
+    gap: Spacing.xl,
+  },
   section: {
     gap: Spacing.sm,
   },
@@ -177,7 +180,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     fontWeight: '600',
   },
-  version: {
+  footer: {
     textAlign: 'center',
     marginTop: Spacing.xxl,
   },

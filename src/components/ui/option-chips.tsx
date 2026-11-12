@@ -27,7 +27,7 @@ export function OptionChips<T extends string>({ options, value, onChange, disabl
               <Ionicons
                 name={option.icon}
                 size={16}
-                color={selected ? Colors.primary : Colors.textMuted}
+                color={selected ? '#FFFFFF' : Colors.textMuted}
               />
             ) : null}
             <Text style={[styles.label, selected && styles.labelSelected]}>{option.label}</Text>
@@ -51,24 +51,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs + 2,
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: Spacing.md + 2,
     paddingVertical: Spacing.sm + 2,
     borderRadius: Radius.full,
-    borderWidth: 1,
-    borderColor: Colors.border,
     backgroundColor: Colors.inputBackground,
   },
   chipSelected: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: Colors.primary,
   },
   label: {
     fontSize: Typography.small,
     color: Colors.textMuted,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   labelSelected: {
-    color: Colors.primaryDark,
-    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });

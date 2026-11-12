@@ -8,8 +8,8 @@ type ThemedTextProps = {
 } & Omit<TextProps, 'style'> & { style?: StyleProp<TextStyle> };
 
 const variantStyles = StyleSheet.create({
-  title: { fontSize: Typography.title, fontWeight: '700' as const, color: Colors.text },
-  subtitle: { fontSize: Typography.subtitle, fontWeight: '600' as const, color: Colors.text },
+  title: { fontSize: Typography.title, fontWeight: '800' as const, color: Colors.text, letterSpacing: -0.5 },
+  subtitle: { fontSize: Typography.subtitle, fontWeight: '700' as const, color: Colors.text, letterSpacing: -0.2 },
   body: { fontSize: Typography.body, color: Colors.text },
   small: { fontSize: Typography.small, color: Colors.text },
   tiny: { fontSize: Typography.tiny, color: Colors.text },

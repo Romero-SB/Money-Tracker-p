@@ -13,14 +13,14 @@ type ButtonProps = {
 
 const VARIANT_STYLES = {
   primary: { backgroundColor: Colors.primary },
-  secondary: { backgroundColor: Colors.inputBackground },
+  secondary: { backgroundColor: Colors.primaryLight },
   danger: { backgroundColor: Colors.expense },
   ghost: { backgroundColor: 'transparent' },
 };
 
 const VARIANT_TEXT_STYLES = {
   primary: { color: '#FFFFFF' },
-  secondary: { color: Colors.primary },
+  secondary: { color: Colors.primaryDark },
   danger: { color: '#FFFFFF' },
   ghost: { color: Colors.primary },
 };
@@ -42,7 +42,7 @@ export function Button({
       style={({ pressed }) => [
         styles.base,
         VARIANT_STYLES[variant],
-        (variant === 'ghost' || variant === 'secondary') && styles.outline,
+        variant === 'primary' && styles.primaryShadow,
         pressed && !isDisabled && styles.pressed,
         isDisabled && styles.disabled,
         style,
@@ -63,21 +63,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.xl,
-    borderRadius: Radius.md,
-    minHeight: 48,
+    borderRadius: Radius.lg,
+    minHeight: 54,
   },
-  outline: {
-    borderWidth: 1,
-    borderColor: Colors.border,
+  primaryShadow: {
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 3,
   },
   pressed: {
-    opacity: 0.8,
+    opacity: 0.85,
+    transform: [{ scale: 0.98 }],
   },
   disabled: {
     opacity: 0.5,
   },
   text: {
     fontSize: Typography.body,
-    fontWeight: '600',
+    fontWeight: '700',
+    letterSpacing: 0.2,
   },
 });

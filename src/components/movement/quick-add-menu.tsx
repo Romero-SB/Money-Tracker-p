@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 import { ListRow } from '@/components/ui/list-row';
 import { ThemedText } from '@/components/ui/themed-text';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Colors, Radius, Shadow, Spacing } from '@/constants/theme';
 import type { MovementType } from '@/types/models';
 
 const OPTIONS: { type: MovementType; label: string; description: string; icon: string; color: string }[] = [
@@ -32,7 +32,10 @@ export function QuickAddMenu() {
       <Modal visible={visible} animationType="slide" transparent onRequestClose={() => setVisible(false)}>
         <View style={styles.overlay}>
           <View style={styles.sheet}>
-            <ThemedText variant="subtitle">Registrar movimiento</ThemedText>
+            <View style={styles.handle} />
+            <ThemedText variant="subtitle" style={styles.sheetTitle}>
+              Registrar movimiento
+            </ThemedText>
             {OPTIONS.map((option) => (
               <ListRow
                 key={option.type}
@@ -57,17 +60,13 @@ const styles = StyleSheet.create({
     right: Spacing.lg,
   },
   fab: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 62,
+    height: 62,
+    borderRadius: 22,
     backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 6,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 5,
+    ...Shadow.floating,
   },
   pressed: {
     opacity: 0.85,
@@ -84,5 +83,16 @@ const styles = StyleSheet.create({
     padding: Spacing.xl,
     paddingBottom: Spacing.xxl,
     gap: Spacing.xs,
+  },
+  handle: {
+    alignSelf: 'center',
+    width: 40,
+    height: 5,
+    borderRadius: Radius.full,
+    backgroundColor: Colors.border,
+    marginBottom: Spacing.md,
+  },
+  sheetTitle: {
+    marginBottom: Spacing.sm,
   },
 });

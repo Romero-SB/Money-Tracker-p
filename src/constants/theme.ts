@@ -1,30 +1,30 @@
 export const Colors = {
   primary: '#0D9488',
-  primaryDark: '#0F766E',
-  primaryLight: '#CCFBF1',
+  primaryDark: '#0B6B63',
+  primaryLight: '#E6F7F5',
 
-  income: '#10B981',
-  expense: '#EF4444',
+  income: '#12B981',
+  expense: '#F04438',
   transfer: '#3B82F6',
-  savings: '#F59E0B',
+  savings: '#F79009',
 
-  background: '#F6F7FB',
+  background: '#F5F7FB',
   card: '#FFFFFF',
-  text: '#0F172A',
-  textMuted: '#64748B',
-  textFaint: '#94A3B8',
-  border: '#E2E8F0',
-  inputBackground: '#F1F5F9',
+  text: '#101828',
+  textMuted: '#667085',
+  textFaint: '#98A2B3',
+  border: '#EAECF0',
+  inputBackground: '#F2F4F7',
 
-  danger: '#DC2626',
-  success: '#059669',
-  warning: '#D97706',
-  info: '#0284C7',
+  danger: '#D92D20',
+  success: '#039855',
+  warning: '#DC6803',
+  info: '#1570EF',
 
   tabBar: '#FFFFFF',
-  tabBarInactive: '#94A3B8',
-  header: '#F6F7FB',
-  overlay: 'rgba(15, 23, 42, 0.5)',
+  tabBarInactive: '#98A2B3',
+  header: '#F5F7FB',
+  overlay: 'rgba(16, 24, 40, 0.45)',
 };
 
 export const Spacing = {
@@ -37,17 +37,34 @@ export const Spacing = {
 };
 
 export const Radius = {
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
+  sm: 10,
+  md: 14,
+  lg: 20,
+  xl: 28,
   full: 999,
 };
 
 export const Typography = {
-  title: 24,
+  title: 26,
   subtitle: 18,
   body: 15,
   small: 13,
   tiny: 11,
+};
+
+export const Shadow = {
+  card: {
+    shadowColor: '#101828',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.06,
+    shadowRadius: 14,
+    elevation: 2,
+  },
+  floating: {
+    shadowColor: '#0B6B63',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 14,
+    elevation: 6,
+  },
 };

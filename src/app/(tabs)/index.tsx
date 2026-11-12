@@ -78,17 +78,13 @@ export default function HomeScreen() {
           </ThemedText>
         </View>
         <Card style={styles.balanceCard}>
-          <ThemedText variant="small" color="muted">
+          <ThemedText variant="small" style={styles.onPrimaryMuted}>
             Saldo total
           </ThemedText>
-          <ThemedText
-            variant="title"
-            style={styles.balanceAmount}
-            color={totalBalance < 0 ? 'expense' : 'default'}
-          >
+          <ThemedText variant="title" style={[styles.balanceAmount, styles.onPrimary]}>
             {formatMoney(totalBalance)}
           </ThemedText>
-          <ThemedText variant="tiny" color="faint">
+          <ThemedText variant="tiny" style={styles.onPrimaryMuted}>
             {activeAccounts.length} {activeAccounts.length === 1 ? 'cuenta activa' : 'cuentas activas'}
           </ThemedText>
         </Card>
@@ -277,10 +273,20 @@ const styles = StyleSheet.create({
   balanceCard: {
     alignItems: 'center',
     gap: Spacing.xs,
-    paddingVertical: Spacing.lg,
+    paddingVertical: Spacing.xl,
+    backgroundColor: Colors.primary,
+    shadowColor: Colors.primary,
+    shadowOpacity: 0.3,
   },
   balanceAmount: {
-    fontSize: Typography.title + 8,
+    fontSize: Typography.title + 10,
+    marginVertical: Spacing.xs,
+  },
+  onPrimary: {
+    color: '#FFFFFF',
+  },
+  onPrimaryMuted: {
+    color: 'rgba(255, 255, 255, 0.78)',
   },
   summaryRow: {
     flexDirection: 'row',

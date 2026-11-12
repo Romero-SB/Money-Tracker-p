@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card';
 import { IconBadge } from '@/components/ui/icon-badge';
 import { Screen } from '@/components/ui/screen';
 import { ThemedText } from '@/components/ui/themed-text';
-import { Colors, Spacing } from '@/constants/theme';
+import { Colors, Radius, Spacing } from '@/constants/theme';
 import { createBackup, restoreBackup } from '@/services/backup';
 
 export default function BackupScreen() {
@@ -81,42 +81,44 @@ export default function BackupScreen() {
 
   return (
     <Screen scroll>
-      <Card style={styles.card}>
+      <Card style={[styles.card, { borderLeftColor: Colors.success }]}>
         <View style={styles.header}>
           <IconBadge icon="cloud-upload" color={Colors.success} />
           <View style={styles.headerText}>
             <ThemedText variant="body" style={styles.title}>
-              Crear copia de seguridad
+              Crear copia
             </ThemedText>
             <ThemedText variant="tiny" color="faint">
-              Incluye cuentas, movimientos, categorías, presupuestos, metas y recurrentes. Los
-              adjuntos no se incluyen.
+              Guarda un archivo con cuentas, movimientos, categorías, presupuestos, metas y recurrentes.
             </ThemedText>
           </View>
         </View>
         <Button label="Crear y compartir" onPress={handleCreate} loading={backingUp} />
+        <ThemedText variant="tiny" color="faint">
+          Los adjuntos (fotos y PDF) no se incluyen en la copia.
+        </ThemedText>
       </Card>
 
-      <Card style={styles.card}>
+      <Card style={[styles.card, { borderLeftColor: Colors.expense }]}>
         <View style={styles.header}>
-          <IconBadge icon="cloud-download" color={Colors.warning} />
+          <IconBadge icon="cloud-download" color={Colors.expense} />
           <View style={styles.headerText}>
             <ThemedText variant="body" style={styles.title}>
               Restaurar copia
             </ThemedText>
             <ThemedText variant="tiny" color="faint">
-              Selecciona un archivo .db creado por Money Tracker. Reemplazará todos los datos
-              actuales.
+              Selecciona un archivo .db creado por Money Tracker.
             </ThemedText>
           </View>
         </View>
+        <View style={styles.warning}>
+          <IconBadge icon="warning" color={Colors.warning} size={30} />
+          <ThemedText variant="small" style={styles.warningText}>
+            Reemplaza todos los datos actuales. No se puede deshacer.
+          </ThemedText>
+        </View>
         <Button label="Seleccionar archivo" variant="danger" onPress={handlePick} loading={restoring} />
       </Card>
-
-      <ThemedText variant="tiny" color="faint" style={styles.note}>
-        Guarda tus copias en un lugar seguro. Puedes compartirlas por correo, Drive o enviarlas a tu
-        computadora.
-      </ThemedText>
     </Screen>
   );
 }
@@ -124,6 +126,7 @@ export default function BackupScreen() {
 const styles = StyleSheet.create({
   card: {
     gap: Spacing.lg,
+    borderLeftWidth: 4,
   },
   header: {
     flexDirection: 'row',
@@ -137,8 +140,16 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: '600',
   },
-  note: {
-    textAlign: 'center',
-    marginTop: Spacing.sm,
+  warning: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    backgroundColor: `${Colors.warning}14`,
+  },
+  warningText: {
+    flex: 1,
+    fontWeight: '500',
   },
 });

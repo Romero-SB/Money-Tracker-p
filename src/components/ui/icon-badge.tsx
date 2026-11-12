@@ -14,14 +14,14 @@ export function IconBadge({ icon, color, size = 44 }: IconBadgeProps) {
       style={[
         styles.badge,
         {
-          backgroundColor: `${color}22`,
+          backgroundColor: `${color}1A`,
           width: size,
           height: size,
-          borderRadius: size / 2,
+          borderRadius: size * 0.32,
         },
       ]}
     >
-      <Ionicons name={icon as ComponentProps<typeof Ionicons>['name']} size={Math.round(size * 0.52)} color={color} />
+      <Ionicons name={icon as ComponentProps<typeof Ionicons>['name']} size={Math.round(size * 0.5)} color={color} />
     </View>
   );
 }

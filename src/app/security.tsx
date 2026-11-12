@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { IconBadge } from '@/components/ui/icon-badge';
 import { Screen } from '@/components/ui/screen';
+import { StatusPill } from '@/components/ui/status-pill';
 import { ThemedText } from '@/components/ui/themed-text';
 import { Colors, Spacing } from '@/constants/theme';
 import {
@@ -105,26 +106,49 @@ export default function SecurityScreen() {
   }
 
   const biometricDisabled = !state.pinSet || !state.biometricsAvailable;
+  const protectedApp = state.pinSet;
 
   return (
     <Screen scroll>
+      <Card style={styles.hero}>
+        <IconBadge
+          icon={protectedApp ? 'shield-checkmark' : 'shield-outline'}
+          color={protectedApp ? Colors.success : Colors.textMuted}
+          size={56}
+        />
+        <View style={styles.heroText}>
+          <ThemedText variant="subtitle" style={styles.heroTitle}>
+            {protectedApp ? 'Tu información está protegida' : 'Tu app no tiene protección'}
+          </ThemedText>
+          <StatusPill
+            label={protectedApp ? 'PIN activo' : 'Sin PIN'}
+            color={protectedApp ? Colors.success : Colors.textMuted}
+          />
+        </View>
+      </Card>
+
       <Card style={styles.card}>
         <View style={styles.cardHeader}>
-          <IconBadge icon="lock-closed" color={Colors.primary} />
+          <IconBadge icon="keypad" color={Colors.primary} />
           <View style={styles.cardHeaderText}>
             <ThemedText variant="body" style={styles.cardTitle}>
               PIN de acceso
             </ThemedText>
             <ThemedText variant="tiny" color="faint">
               {state.pinSet
-                ? 'Tu app está protegida con un PIN de 4 dígitos.'
-                : 'Protege tu información con un PIN de 4 dígitos.'}
+                ? 'Se pide al abrir la app y al volver de segundo plano.'
+                : 'Un código de 4 dígitos para proteger la app.'}
             </ThemedText>
           </View>
         </View>
         {state.pinSet ? (
           <View style={styles.buttonRow}>
-            <Button label="Cambiar PIN" onPress={() => setModal('change')} style={styles.button} />
+            <Button
+              label="Cambiar PIN"
+              variant="secondary"
+              onPress={() => setModal('change')}
+              style={styles.button}
+            />
             <Button
               label="Desactivar"
               variant="danger"
@@ -148,7 +172,7 @@ export default function SecurityScreen() {
               {!state.pinSet
                 ? 'Primero crea un PIN para usar biometría.'
                 : state.biometricsAvailable
-                  ? 'Usa tu huella o rostro para desbloquear la app.'
+                  ? 'Usa tu huella o rostro para desbloquear.'
                   : 'No disponible en este dispositivo.'}
             </ThemedText>
           </View>
@@ -157,13 +181,13 @@ export default function SecurityScreen() {
             onValueChange={handleBiometricToggle}
             disabled={biometricDisabled}
             trackColor={{ false: Colors.border, true: Colors.primary }}
-            thumbColor={state.biometricEnabled ? '#FFFFFF' : Colors.textFaint}
+            thumbColor="#FFFFFF"
           />
         </View>
       </Card>
 
       <ThemedText variant="tiny" color="faint" style={styles.note}>
-        La app se bloquea al pasar a segundo plano y se desbloquea con tu PIN o biometría.
+        Si desactivas el PIN, la biometría también se desactiva.
       </ThemedText>
 
       {modal ? (
@@ -181,6 +205,18 @@ export default function SecurityScreen() {
 }
 
 const styles = StyleSheet.create({
+  hero: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.lg,
+  },
+  heroText: {
+    flex: 1,
+    gap: Spacing.sm,
+  },
+  heroTitle: {
+    fontWeight: '600',
+  },
   card: {
     gap: Spacing.lg,
   },

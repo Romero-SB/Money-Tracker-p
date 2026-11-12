@@ -23,6 +23,37 @@ type NotificationsState = {
   recurringReminders: boolean;
 } | null;
 
+type ToggleRowProps = {
+  icon: string;
+  color: string;
+  title: string;
+  description: string;
+  value: boolean;
+  onChange: (value: boolean) => void;
+};
+
+function ToggleRow({ icon, color, title, description, value, onChange }: ToggleRowProps) {
+  return (
+    <View style={styles.row}>
+      <IconBadge icon={icon} color={color} />
+      <View style={styles.rowText}>
+        <ThemedText variant="body" style={styles.rowTitle}>
+          {title}
+        </ThemedText>
+        <ThemedText variant="tiny" color="faint">
+          {description}
+        </ThemedText>
+      </View>
+      <Switch
+        value={value}
+        onValueChange={onChange}
+        trackColor={{ false: Colors.border, true: Colors.primary }}
+        thumbColor="#FFFFFF"
+      />
+    </View>
+  );
+}
+
 export default function NotificationsScreen() {
   const db = useSQLiteContext();
   const [state, setState] = useState<NotificationsState>(null);
@@ -85,67 +116,70 @@ export default function NotificationsScreen() {
 
   return (
     <Screen scroll>
+      <ThemedText variant="tiny" color="faint" style={styles.sectionTitle}>
+        ALERTAS
+      </ThemedText>
       <Card style={styles.card}>
-        <View style={styles.row}>
-          <IconBadge icon="pie-chart" color={Colors.savings} />
-          <View style={styles.rowText}>
-            <ThemedText variant="body" style={styles.rowTitle}>
-              Alertas de presupuestos
-            </ThemedText>
-            <ThemedText variant="tiny" color="faint">
-              Avisan cuando usas el 80% de un presupuesto y al superarlo.
-            </ThemedText>
-          </View>
-          <Switch
-            value={state.budgetAlerts}
-            onValueChange={handleToggle(BUDGET_ALERTS_SETTING, 'budgetAlerts')}
-            trackColor={{ false: Colors.border, true: Colors.primary }}
-            thumbColor={state.budgetAlerts ? '#FFFFFF' : Colors.textFaint}
-          />
-        </View>
+        <ToggleRow
+          icon="pie-chart"
+          color={Colors.savings}
+          title="Alertas de presupuestos"
+          description="Avisa al usar el 80% de un presupuesto y al superarlo."
+          value={state.budgetAlerts}
+          onChange={handleToggle(BUDGET_ALERTS_SETTING, 'budgetAlerts')}
+        />
+        <View style={styles.divider} />
+        <ToggleRow
+          icon="repeat"
+          color={Colors.info}
+          title="Recordatorios de recurrentes"
+          description="Avisa una vez al día si tienes recurrentes pendientes."
+          value={state.recurringReminders}
+          onChange={handleToggle(RECURRING_REMINDERS_SETTING, 'recurringReminders')}
+        />
       </Card>
 
-      <Card style={styles.card}>
+      <ThemedText variant="tiny" color="faint" style={styles.sectionTitle}>
+        PRUEBA
+      </ThemedText>
+      <Card style={styles.testCard}>
         <View style={styles.row}>
-          <IconBadge icon="repeat" color={Colors.info} />
+          <IconBadge icon="paper-plane" color={Colors.primary} />
           <View style={styles.rowText}>
             <ThemedText variant="body" style={styles.rowTitle}>
-              Recordatorios de recurrentes
+              Notificación de prueba
             </ThemedText>
             <ThemedText variant="tiny" color="faint">
-              Avisan una vez al día si tienes recurrentes pendientes de registrar.
+              Verifica que el sistema muestra los avisos de la app.
             </ThemedText>
           </View>
-          <Switch
-            value={state.recurringReminders}
-            onValueChange={handleToggle(RECURRING_REMINDERS_SETTING, 'recurringReminders')}
-            trackColor={{ false: Colors.border, true: Colors.primary }}
-            thumbColor={state.recurringReminders ? '#FFFFFF' : Colors.textFaint}
-          />
         </View>
-      </Card>
-
-      <Card style={styles.card}>
-        <ThemedText variant="body" style={styles.rowTitle}>
-          Probar notificaciones
-        </ThemedText>
-        <ThemedText variant="tiny" color="faint">
-          Envía una notificación de ejemplo para verificar que todo funciona.
-        </ThemedText>
-        <Button label="Enviar notificación de prueba" onPress={handleTest} loading={sending} />
+        <Button label="Enviar prueba" variant="secondary" onPress={handleTest} loading={sending} />
       </Card>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  sectionTitle: {
+    letterSpacing: 1,
+    fontWeight: '600',
+    marginTop: Spacing.sm,
+    marginLeft: Spacing.xs,
+  },
   card: {
-    gap: Spacing.md,
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.xs,
+  },
+  testCard: {
+    gap: Spacing.lg,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.md,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.sm,
   },
   rowText: {
     flex: 1,
@@ -153,6 +187,11 @@ const styles = StyleSheet.create({
   },
   rowTitle: {
     fontWeight: '600',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: Colors.border,
+    marginHorizontal: Spacing.sm,
   },
   center: {
     flex: 1,

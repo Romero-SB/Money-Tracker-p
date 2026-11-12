@@ -106,7 +106,15 @@ export default function RootLayout() {
       <StatusBar style="dark" />
       <SQLiteProvider databaseName={DATABASE_NAME} onInit={initDatabase}>
         <AppGate>
-          <Stack>
+          <Stack
+            screenOptions={{
+              headerShadowVisible: false,
+              headerStyle: { backgroundColor: Colors.background },
+              headerTitleStyle: { fontWeight: '700', color: Colors.text },
+              headerTintColor: Colors.primary,
+              contentStyle: { backgroundColor: Colors.background },
+            }}
+          >
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="accounts" options={{ title: 'Cuentas' }} />
             <Stack.Screen name="account-form" options={{ title: 'Cuenta' }} />
