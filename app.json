@@ -28,7 +28,7 @@
         {
           "backgroundColor": "#FFFFFF",
           "image": "./assets/images/logo.png",
-          "imageWidth": 180
+          "imageWidth": 120
         }
       ],
       "expo-sqlite",

@@ -1,17 +1,19 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { StatusBar } from 'expo-status-bar';
 
-import { AppState, StyleSheet, useColorScheme, View } from 'react-native';
+import { AppState, useColorScheme, View } from 'react-native';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 
 import { LockScreen } from '@/components/security/lock-screen';
+import { LoadingScreen } from '@/components/ui/loading-screen';
 import { DATABASE_NAME, initDatabase } from '@/db';
 import { Colors } from '@/constants/theme';
 import { canUseBiometrics, hasPin, isAuthenticating, isBiometricUnlockEnabled } from '@/services/security';
 
 SplashScreen.preventAutoHideAsync();
+SplashScreen.setOptions({ duration: 350, fade: true });
 
 const AppTheme = {
   ...DefaultTheme,
@@ -39,6 +41,12 @@ function AppGate({ children }: { children: ReactNode }) {
   const db = useSQLiteContext();
   const [status, setStatus] = useState<GateStatus>('checking');
   const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setMinTimeElapsed(true), 900);
+    return () => clearTimeout(timer);
+  }, []);
 
   const lock = useCallback(async () => {
     if (!(await hasPin())) {
@@ -81,25 +89,21 @@ function AppGate({ children }: { children: ReactNode }) {
     setStatus('open');
   }, []);
 
+  const showLoading = status === 'checking' || !minTimeElapsed;
+
   return (
     <View style={{ flex: 1 }}>
       {children}
-      {status === 'checking' ? (
-        <View style={[StyleSheet.absoluteFill, { backgroundColor: Colors.background }]} />
-      ) : null}
-      {status === 'locked' ? (
+      {status === 'locked' && !showLoading ? (
         <LockScreen biometricEnabled={biometricEnabled} onUnlock={handleUnlock} />
       ) : null}
+      {showLoading ? <LoadingScreen /> : null}
     </View>
   );
 }
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-
-  useEffect(() => {
-    SplashScreen.hideAsync();
-  }, []);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? AppDarkTheme : AppTheme}>
