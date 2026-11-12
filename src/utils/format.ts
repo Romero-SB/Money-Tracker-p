@@ -1,10 +1,38 @@
+export type CurrencyCode = 'PEN' | 'USD' | 'EUR';
+
+export const CURRENCY_SETTING_KEY = 'preferred_currency';
+
+export const CURRENCIES: { code: CurrencyCode; label: string; symbol: string }[] = [
+  { code: 'PEN', label: 'Sol peruano', symbol: 'S/' },
+  { code: 'USD', label: 'Dólar estadounidense', symbol: '$' },
+  { code: 'EUR', label: 'Euro', symbol: '€' },
+];
+
+export function isValidCurrency(value: string | null | undefined): value is CurrencyCode {
+  return value === 'PEN' || value === 'USD' || value === 'EUR';
+}
+
 const CURRENCY_SYMBOLS: Record<string, string> = {
   PEN: 'S/',
   USD: '$',
   EUR: '€',
 };
 
-export function formatMoney(amount: number, currency = 'PEN'): string {
+let displayCurrency: string = 'PEN';
+
+export function setDisplayCurrency(currency: string): void {
+  displayCurrency = currency;
+}
+
+export function getDisplayCurrency(): string {
+  return displayCurrency;
+}
+
+export function currencyLabel(code: string): string {
+  return CURRENCIES.find((currency) => currency.code === code)?.label ?? code;
+}
+
+export function formatMoney(amount: number, currency = getDisplayCurrency()): string {
   const symbol = CURRENCY_SYMBOLS[currency] ?? currency;
   const sign = amount < 0 ? '-' : '';
   const [intPart, decPart] = Math.abs(amount).toFixed(2).split('.');

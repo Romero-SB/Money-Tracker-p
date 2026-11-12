@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 
 import { getPeriodSummary, listMovements } from '@/services/movements';
 import { getDueRecurring } from '@/services/recurring';
+import { sendDueRecurringReminder } from '@/services/notifications';
 import type { MovementWithDetails, RecurringWithDetails } from '@/types/models';
 import type { DashboardPeriod } from '@/utils/dates';
 import { periodFromDate } from '@/utils/dates';
@@ -34,6 +35,7 @@ export function useDashboard() {
         setLatest(latestResult.items);
         setDueRecurring(dueRecurringResult);
         setError(null);
+        sendDueRecurringReminder(db, dueRecurringResult.length).catch(() => {});
       } catch {
         setError('No se pudo cargar el resumen');
       } finally {

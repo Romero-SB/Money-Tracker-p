@@ -60,6 +60,17 @@ export type MonthlyPoint = {
   expense: number;
 };
 
+export type MovementExportRow = {
+  id: number;
+  type: MovementType;
+  amount: number;
+  account_name: string;
+  destination_account_name: string | null;
+  category_name: string | null;
+  description: string;
+  occurred_at: string;
+};
+
 const SELECT_MOVEMENTS = `
 SELECT
   m.*,
@@ -308,6 +319,26 @@ export function movementsRepository(db: SQLiteDatabase) {
     return points;
   }
 
+  async function getAllForExport(): Promise<MovementExportRow[]> {
+    return db.getAllAsync<MovementExportRow>(
+      `SELECT
+         m.id,
+         m.type,
+         m.amount,
+         a.name AS account_name,
+         da.name AS destination_account_name,
+         c.name AS category_name,
+         m.description,
+         m.occurred_at
+       FROM movements m
+       JOIN accounts a ON a.id = m.account_id
+       LEFT JOIN accounts da ON da.id = m.destination_account_id
+       LEFT JOIN categories c ON c.id = m.category_id
+       WHERE m.is_deleted = 0
+       ORDER BY m.occurred_at ASC, m.id ASC`
+    );
+  }
+
   return {
     create,
     update,
@@ -320,6 +351,7 @@ export function movementsRepository(db: SQLiteDatabase) {
     getSummary,
     expensesByCategory,
     getMonthlyTotals,
+    getAllForExport,
     getAttachments,
     addAttachment,
     removeAttachment,

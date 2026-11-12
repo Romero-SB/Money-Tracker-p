@@ -1,12 +1,25 @@
 import { router, type Href } from 'expo-router';
+import { useState } from 'react';
+import { useSQLiteContext } from 'expo-sqlite';
 import { StyleSheet, View } from 'react-native';
 
+import { SelectorModal } from '@/components/pickers/selector-modal';
 import { Card } from '@/components/ui/card';
 import { ListRow } from '@/components/ui/list-row';
 import { Screen } from '@/components/ui/screen';
 import { ThemedText } from '@/components/ui/themed-text';
 import type { IconName } from '@/constants/options';
 import { Spacing } from '@/constants/theme';
+import { settingsRepository } from '@/db/repositories/settings';
+import {
+  CURRENCIES,
+  CURRENCY_SETTING_KEY,
+  currencyLabel,
+  getDisplayCurrency,
+  isValidCurrency,
+  setDisplayCurrency,
+  type CurrencyCode,
+} from '@/utils/format';
 
 type MenuEntry = {
   icon: IconName;
@@ -45,72 +58,110 @@ const MENU: MenuEntry[] = [
     description: 'Movimientos que se repiten',
     route: '/recurring',
   },
-];
-
-const COMING_SOON: MenuEntry[] = [
   {
     icon: 'lock-closed',
-    color: '#64748B',
+    color: '#EF4444',
     label: 'Seguridad',
     description: 'PIN de acceso y biometría',
+    route: '/security',
   },
   {
     icon: 'notifications',
-    color: '#64748B',
+    color: '#0284C7',
     label: 'Notificaciones',
-    description: 'Recordatorios y alertas',
+    description: 'Alertas y recordatorios',
+    route: '/notifications',
   },
   {
     icon: 'cloud-upload',
-    color: '#64748B',
+    color: '#10B981',
     label: 'Copias de seguridad',
     description: 'Respaldo y restauración',
+    route: '/backup',
   },
   {
     icon: 'download',
-    color: '#64748B',
+    color: '#D97706',
     label: 'Exportar',
-    description: 'Exporta tus movimientos',
+    description: 'Exporta tus movimientos a CSV',
+    route: '/export',
   },
 ];
 
+const CURRENCY_OPTIONS = CURRENCIES.map((currency, index) => ({
+  id: index + 1,
+  icon: (['cash', 'logo-usd', 'logo-euro'] as IconName[])[index],
+  color: '#0D9488',
+  title: currency.label,
+  subtitle: `${currency.symbol} · ${currency.code}`,
+  code: currency.code,
+}));
+
 export default function SettingsScreen() {
+  const db = useSQLiteContext();
+  const [currency, setCurrency] = useState<CurrencyCode>(() => {
+    const current = getDisplayCurrency();
+    return isValidCurrency(current) ? current : 'PEN';
+  });
+  const [currencyPickerVisible, setCurrencyPickerVisible] = useState(false);
+
+  const handleCurrencySelect = async (id: number) => {
+    const option = CURRENCY_OPTIONS.find((item) => item.id === id);
+    if (!option) {
+      return;
+    }
+    setCurrency(option.code);
+    setDisplayCurrency(option.code);
+    await settingsRepository(db).set(CURRENCY_SETTING_KEY, option.code);
+  };
+
   return (
     <Screen scroll>
-      <Card style={styles.card}>
-        {MENU.map((entry) => (
+      <View style={styles.section}>
+        <ThemedText variant="tiny" color="faint" style={styles.sectionTitle}>
+          PREFERENCIAS
+        </ThemedText>
+        <Card style={styles.card}>
           <ListRow
-            key={entry.label}
-            icon={entry.icon}
-            color={entry.color}
-            title={entry.label}
-            subtitle={entry.description}
-            onPress={() => router.push(entry.route!)}
+            icon="cash"
+            color="#0D9488"
+            title="Moneda"
+            subtitle={currencyLabel(currency)}
+            onPress={() => setCurrencyPickerVisible(true)}
           />
-        ))}
-      </Card>
+        </Card>
+      </View>
 
       <View style={styles.section}>
         <ThemedText variant="tiny" color="faint" style={styles.sectionTitle}>
-          PRÓXIMAMENTE
+          GESTIÓN
         </ThemedText>
         <Card style={styles.card}>
-          {COMING_SOON.map((entry) => (
+          {MENU.map((entry) => (
             <ListRow
               key={entry.label}
               icon={entry.icon}
               color={entry.color}
               title={entry.label}
               subtitle={entry.description}
-              dimmed
+              onPress={() => router.push(entry.route!)}
             />
           ))}
         </Card>
       </View>
 
       <ThemedText variant="tiny" color="faint" style={styles.version}>
-        Money Tracker v1.0 · Sol peruano (PEN)
+        Money Tracker v1.0
       </ThemedText>
+
+      <SelectorModal
+        visible={currencyPickerVisible}
+        onClose={() => setCurrencyPickerVisible(false)}
+        title="Moneda"
+        options={CURRENCY_OPTIONS}
+        selectedId={CURRENCY_OPTIONS.find((item) => item.code === currency)?.id ?? null}
+        onSelect={handleCurrencySelect}
+      />
     </Screen>
   );
 }
@@ -120,7 +171,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.xs,
   },
   section: {
-    marginTop: Spacing.xl,
     gap: Spacing.sm,
   },
   sectionTitle: {

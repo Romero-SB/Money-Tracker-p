@@ -2,7 +2,11 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 
 import { budgetsRepository } from '@/db/repositories/budgets';
 import { settingsRepository } from '@/db/repositories/settings';
-import { ensureNotificationPermission, sendLocalNotification } from '@/services/notifications';
+import {
+  BUDGET_ALERTS_SETTING,
+  ensureNotificationPermission,
+  sendLocalNotification,
+} from '@/services/notifications';
 import type { BudgetWithProgress } from '@/types/models';
 import { formatMoney } from '@/utils/format';
 
@@ -64,6 +68,9 @@ async function notify(budget: BudgetWithProgress, level: AlertLevel): Promise<vo
 }
 
 export async function checkBudgetAlerts(db: SQLiteDatabase, categoryId: number): Promise<void> {
+  if ((await settingsRepository(db).get(BUDGET_ALERTS_SETTING)) === 'false') {
+    return;
+  }
   const budgets = await budgetsRepository(db).getByCategory(categoryId);
   if (budgets.length === 0) {
     return;
